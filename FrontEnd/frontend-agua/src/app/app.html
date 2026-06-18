@@ -1,0 +1,698 @@
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <h2>Sistema Agua</h2>
+    <nav>
+      <ul>
+        <li
+          [class.active]="seccionActiva() === 'usuarios'"
+          (click)="cambiarSeccion('usuarios')"
+        >
+          Usuarios
+        </li>
+        <li
+          [class.active]="seccionActiva() === 'viviendas'"
+          (click)="cambiarSeccion('viviendas')"
+        >
+          Viviendas
+        </li>
+        <li
+          [class.active]="seccionActiva() === 'cuotas'"
+          (click)="cambiarSeccion('cuotas')"
+        >
+          Cuotas
+        </li>
+        <li
+          [class.active]="seccionActiva() === 'pagos'"
+          (click)="cambiarSeccion('pagos')"
+        >
+          Pagos
+        </li>
+        <li
+          [class.active]="seccionActiva() === 'estado-cuenta'"
+          (click)="cambiarSeccion('estado-cuenta')"
+        >
+          Estado de cuenta
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      @if (mensajeExito()) {
+  <section class="alert alert-success">
+    {{ mensajeExito() }}
+  </section>
+}
+
+@if (mensajeError()) {
+  <section class="alert alert-error">
+    {{ mensajeError() }}
+  </section>
+}
+      <h1>Dashboard</h1>
+      <p>Gestión del sistema de cobro de agua potable</p>
+    </header>
+
+    @if (seccionActiva() === 'usuarios') {
+      <section class="card">
+        <h2>
+          {{ usuarioEditandoId() !== null ? 'Editar usuario' : 'Crear usuario' }}
+        </h2>
+
+        <form (ngSubmit)="guardarOActualizarUsuario()" class="form-grid">
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input
+              id="nombre"
+              type="text"
+              name="nombre"
+              [(ngModel)]="nuevoUsuario.nombre"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="apellido">Apellido</label>
+            <input
+              id="apellido"
+              type="text"
+              name="apellido"
+              [(ngModel)]="nuevoUsuario.apellido"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="dpi">DPI</label>
+            <input
+              id="dpi"
+              type="text"
+              name="dpi"
+              [(ngModel)]="nuevoUsuario.dpi"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input
+              id="telefono"
+              type="text"
+              name="telefono"
+              [(ngModel)]="nuevoUsuario.telefono"
+            />
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">
+              {{ usuarioEditandoId() !== null ? 'Actualizar usuario' : 'Guardar usuario' }}
+            </button>
+
+            @if (usuarioEditandoId() !== null) {
+              <button type="button" class="btn-secondary" (click)="cancelarEdicion()">
+                Cancelar edición
+              </button>
+            }
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="section-header">
+          <h2>Lista de usuarios</h2>
+          <span>Total: {{ usuarios().length }}</span>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>DPI</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let usuario of usuarios()">
+                <td>{{ usuario.id }}</td>
+                <td>{{ usuario.nombre }}</td>
+                <td>{{ usuario.apellido }}</td>
+                <td>{{ usuario.dpi }}</td>
+                <td>{{ usuario.telefono }}</td>
+                <td class="acciones">
+                  <button
+                    type="button"
+                    class="btn-edit"
+                    (click)="seleccionarUsuarioParaEditar(usuario)"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn-delete"
+                    (click)="eliminarUsuario(usuario.id)"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    @if (seccionActiva() === 'viviendas') {
+      <section class="card">
+        <h2>{{ viviendaEditandoId() !== null ? 'Editar vivienda' : 'Crear vivienda' }}</h2>
+
+        <form (ngSubmit)="guardarOActualizarVivienda()" class="form-grid">
+          <div class="form-group">
+            <label for="barrio">Barrio</label>
+            <select
+              id="barrio"
+              name="barrio"
+              [(ngModel)]="nuevaVivienda.barrio"
+            >
+              <option value="">Seleccione un barrio</option>
+              <option value="REGIONAL">REGIONAL</option>
+              <option value="CENTRO">CENTRO</option>
+              <option value="VOLCAN">VOLCAN</option>
+              <option value="JOYA">JOYA</option>
+              <option value="CALVARIO">CALVARIO</option>
+              <option value="TEMPISQUE">TEMPISQUE</option>
+              <option value="GOMEZ">GOMEZ</option>
+              <option value="SALIDA_SAMPAQUIZOY">SALIDA_SAMPAQUIZOY</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="referencia">Referencia</label>
+            <input
+              id="referencia"
+              type="text"
+              name="referencia"
+              [(ngModel)]="nuevaVivienda.referencia"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="usuarioId">Usuario</label>
+            <select
+              id="usuarioId"
+              name="usuarioId"
+              [(ngModel)]="nuevaVivienda.usuarioId"
+            >
+              <option [ngValue]="0">Seleccione un usuario</option>
+              <option *ngFor="let usuario of obtenerUsuariosDisponibles()" [ngValue]="usuario.id">
+                {{ usuario.nombre }} {{ usuario.apellido }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">
+              {{ viviendaEditandoId() !== null ? 'Actualizar vivienda' : 'Guardar vivienda' }}
+            </button>
+
+            @if (viviendaEditandoId() !== null) {
+              <button type="button" class="btn-secondary" (click)="cancelarEdicionVivienda()">
+                Cancelar edición
+              </button>
+            }
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="section-header">
+          <h2>Lista de viviendas</h2>
+          <span>Total: {{ viviendas().length }}</span>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Barrio</th>
+                <th>Referencia</th>
+                <th>Usuario</th>
+                <th>DPI</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let vivienda of viviendas()">
+                <td>{{ vivienda.id }}</td>
+                <td>{{ vivienda.barrio }}</td>
+                <td>{{ vivienda.referencia }}</td>
+                <td>{{ vivienda.usuario.nombre }} {{ vivienda.usuario.apellido }}</td>
+                <td>{{ vivienda.usuario.dpi }}</td>
+                <td>{{ vivienda.usuario.telefono }}</td>
+                <td class="acciones">
+                  <button
+                    type="button"
+                    class="btn-edit"
+                    (click)="seleccionarViviendaParaEditar(vivienda)"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn-delete"
+                    (click)="eliminarVivienda(vivienda.id)"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    @if (seccionActiva() === 'cuotas') {
+      <section class="card">
+        <h2>Generar cuotas del mes</h2>
+
+        <form (ngSubmit)="generarCuotasDelMes()" class="form-grid">
+          <div class="form-group">
+            <label for="mesGenerar">Mes</label>
+            <input
+              id="mesGenerar"
+              type="number"
+              name="mesGenerar"
+              [(ngModel)]="generarCuotasRequest.mes"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="anioGenerar">Año</label>
+            <input
+              id="anioGenerar"
+              type="number"
+              name="anioGenerar"
+              [(ngModel)]="generarCuotasRequest.anio"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="montoGenerar">Monto</label>
+            <input
+              id="montoGenerar"
+              type="number"
+              name="montoGenerar"
+              [(ngModel)]="generarCuotasRequest.monto"
+            />
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">
+              Generar cuotas del mes
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>
+          {{ cuotaEditandoId() !== null ? 'Editar cuota' : 'Crear cuota manual' }}
+        </h2>
+
+        <form (ngSubmit)="guardarOActualizarCuota()" class="form-grid">
+          <div class="form-group">
+            <label for="mesCuota">Mes</label>
+            <input
+              id="mesCuota"
+              type="number"
+              name="mesCuota"
+              [(ngModel)]="nuevaCuota.mes"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="anioCuota">Año</label>
+            <input
+              id="anioCuota"
+              type="number"
+              name="anioCuota"
+              [(ngModel)]="nuevaCuota.anio"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="montoCuota">Monto</label>
+            <input
+              id="montoCuota"
+              type="number"
+              name="montoCuota"
+              [(ngModel)]="nuevaCuota.monto"
+            />
+          </div>
+          <div class="form-group">
+            <label for="viviendaCuota">Vivienda</label>
+            <select
+              id="viviendaCuota"
+              name="viviendaCuota"
+              [(ngModel)]="nuevaCuota.viviendaId"
+            >
+              <option [ngValue]="0">Seleccione una vivienda</option>
+              <option *ngFor="let vivienda of viviendas()" [ngValue]="vivienda.id">
+                {{ vivienda.barrio }} - {{ vivienda.referencia }} - {{ vivienda.usuario.nombre }} {{ vivienda.usuario.apellido }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">
+              {{ cuotaEditandoId() !== null ? 'Actualizar cuota' : 'Guardar cuota' }}
+            </button>
+
+            @if (cuotaEditandoId() !== null) {
+              <button type="button" class="btn-secondary" (click)="cancelarEdicionCuota()">
+                Cancelar edición
+              </button>
+            }
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="section-header">
+          <h2>Lista de cuotas</h2>
+          <span>Total: {{ cuotas().length }}</span>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Mes</th>
+                <th>Año</th>
+                <th>Monto</th>
+                <th>Fecha vencimiento</th>
+                <th>Estado</th>
+                <th>Vivienda</th>
+                <th>Usuario</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let cuota of cuotas()">
+                <td>{{ cuota.id }}</td>
+                <td>{{ cuota.mes }}</td>
+                <td>{{ cuota.anio }}</td>
+                <td>{{ cuota.monto }}</td>
+                <td>{{ cuota.fechaVencimiento }}</td>
+                <td>{{ cuota.estado }}</td>
+                <td>{{ cuota.vivienda.barrio }} - {{ cuota.vivienda.referencia }}</td>
+                <td>{{ cuota.vivienda.usuario.nombre }} {{ cuota.vivienda.usuario.apellido }}</td>
+                <td class="acciones">
+                  <button
+                    type="button"
+                    class="btn-edit"
+                    (click)="seleccionarCuotaParaEditar(cuota)"
+                  >
+                    Editar
+                  </button>
+
+                  @if (cuota.estado !== 'PAGADA') {
+                    <button
+                      type="button"
+                      class="btn-delete"
+                      (click)="eliminarCuota(cuota.id)"
+                    >
+                      Eliminar
+                    </button>
+                  }
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    @if (seccionActiva() === 'pagos') {
+  @if (pagoSeleccionadoRecibo()) {
+    <section class="card recibo-card">
+     <div class="section-header">
+  <h2>Recibo de pago</h2>
+  <div class="form-actions">
+    <button type="button" class="btn-primary" (click)="imprimirRecibo()">
+      Imprimir recibo
+    </button>
+    <button type="button" class="btn-secondary" (click)="cerrarRecibo()">
+      Cerrar
+    </button>
+  </div>
+</div>
+
+      <div class="recibo-contenido">
+        <h3>Sistema de Cobro de Agua Potable</h3>
+        <p><strong>No. de pago:</strong> {{ pagoSeleccionadoRecibo()!.id }}</p>
+        <p><strong>Fecha de pago:</strong> {{ pagoSeleccionadoRecibo()!.fechaPago }}</p>
+        <p><strong>Monto pagado:</strong> {{ pagoSeleccionadoRecibo()!.montoPagado }}</p>
+        <p><strong>Método de pago:</strong> {{ pagoSeleccionadoRecibo()!.metodoPago }}</p>
+        <p><strong>Observación:</strong> {{ pagoSeleccionadoRecibo()!.observacion }}</p>
+
+        <hr />
+
+        <p><strong>Usuario:</strong> {{ pagoSeleccionadoRecibo()!.cuota.vivienda.usuario.nombre }} {{ pagoSeleccionadoRecibo()!.cuota.vivienda.usuario.apellido }}</p>
+        <p><strong>DPI:</strong> {{ pagoSeleccionadoRecibo()!.cuota.vivienda.usuario.dpi }}</p>
+        <p><strong>Teléfono:</strong> {{ pagoSeleccionadoRecibo()!.cuota.vivienda.usuario.telefono }}</p>
+
+        <hr />
+
+        <p><strong>Vivienda:</strong> {{ pagoSeleccionadoRecibo()!.cuota.vivienda.barrio }} - {{ pagoSeleccionadoRecibo()!.cuota.vivienda.referencia }}</p>
+        <p><strong>Cuota pagada:</strong> {{ pagoSeleccionadoRecibo()!.cuota.mes }}/{{ pagoSeleccionadoRecibo()!.cuota.anio }}</p>
+        <p><strong>Estado de la cuota:</strong> {{ pagoSeleccionadoRecibo()!.cuota.estado }}</p>
+      </div>
+    </section>
+  }
+
+  <section class="card">
+    <h2>
+      {{ pagoEditandoId() !== null ? 'Editar pago' : 'Registrar pago' }}
+    </h2>
+
+    <form (ngSubmit)="guardarOActualizarPago()" class="form-grid">
+      <div class="form-group">
+        <label for="fechaPago">Fecha de pago</label>
+        <input
+          id="fechaPago"
+          type="date"
+          name="fechaPago"
+          [(ngModel)]="nuevoPago.fechaPago"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="montoPagado">Monto pagado</label>
+        <input
+          id="montoPagado"
+          type="number"
+          name="montoPagado"
+          [(ngModel)]="nuevoPago.montoPagado"
+          readonly
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="metodoPago">Método de pago</label>
+        <select
+          id="metodoPago"
+          name="metodoPago"
+          [(ngModel)]="nuevoPago.metodoPago"
+        >
+          <option value="EFECTIVO">EFECTIVO</option>
+          <option value="TRANSFERENCIA">TRANSFERENCIA</option>
+          <option value="DEPOSITO">DEPOSITO</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="observacion">Observación</label>
+        <input
+          id="observacion"
+          type="text"
+          name="observacion"
+          [(ngModel)]="nuevoPago.observacion"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="cuotaId">Cuota</label>
+        <select
+          id="cuotaId"
+          name="cuotaId"
+          [(ngModel)]="nuevoPago.cuotaId"
+          (change)="actualizarMontoSegunCuota()"
+        >
+          <option [ngValue]="0">Seleccione una cuota</option>
+          <option *ngFor="let cuota of obtenerCuotasDisponiblesParaPago()" [ngValue]="cuota.id">
+            {{ cuota.mes }}/{{ cuota.anio }} - {{ cuota.vivienda.barrio }} - {{ cuota.vivienda.usuario.nombre }} {{ cuota.vivienda.usuario.apellido }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">
+          {{ pagoEditandoId() !== null ? 'Actualizar pago' : 'Guardar pago' }}
+        </button>
+
+        @if (pagoEditandoId() !== null) {
+          <button type="button" class="btn-secondary" (click)="cancelarEdicionPago()">
+            Cancelar edición
+          </button>
+        }
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="section-header">
+      <h2>Lista de pagos</h2>
+      <span>Total: {{ pagos().length }}</span>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha pago</th>
+            <th>Monto pagado</th>
+            <th>Método</th>
+            <th>Observación</th>
+            <th>Cuota</th>
+            <th>Vivienda</th>
+            <th>Usuario</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let pago of pagos()">
+            <td>{{ pago.id }}</td>
+            <td>{{ pago.fechaPago }}</td>
+            <td>{{ pago.montoPagado }}</td>
+            <td>{{ pago.metodoPago }}</td>
+            <td>{{ pago.observacion }}</td>
+            <td>{{ pago.cuota.mes }}/{{ pago.cuota.anio }}</td>
+            <td>{{ pago.cuota.vivienda.barrio }} - {{ pago.cuota.vivienda.referencia }}</td>
+            <td>{{ pago.cuota.vivienda.usuario.nombre }} {{ pago.cuota.vivienda.usuario.apellido }}</td>
+            <td class="acciones">
+              <button
+                type="button"
+                class="btn-primary"
+                (click)="verRecibo(pago)"
+              >
+                Ver recibo
+              </button>
+
+              <button
+                type="button"
+                class="btn-edit"
+                (click)="seleccionarPagoParaEditar(pago)"
+              >
+                Editar
+              </button>
+
+              <button
+                type="button"
+                class="btn-delete"
+                (click)="eliminarPago(pago.id)"
+              >
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
+
+    @if (seccionActiva() === 'estado-cuenta') {
+      <section class="card">
+        <h2>Consultar estado de cuenta</h2>
+
+        <form (ngSubmit)="consultarEstadoDeCuenta()" class="form-grid">
+          <div class="form-group">
+            <label for="viviendaEstadoCuenta">Vivienda</label>
+            <select
+              id="viviendaEstadoCuenta"
+              name="viviendaEstadoCuenta"
+              [(ngModel)]="viviendaSeleccionadaEstadoCuenta"
+            >
+              <option [ngValue]="0">Seleccione una vivienda</option>
+              <option *ngFor="let vivienda of viviendas()" [ngValue]="vivienda.id">
+                {{ vivienda.barrio }} - {{ vivienda.referencia }} - {{ vivienda.usuario.nombre }} {{ vivienda.usuario.apellido }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">
+              Consultar estado de cuenta
+            </button>
+          </div>
+        </form>
+      </section>
+
+      @if (estadoCuenta()) {
+        <section class="card">
+          <div class="section-header">
+            <h2>Resumen</h2>
+          </div>
+
+          <p><strong>Vivienda ID:</strong> {{ estadoCuenta()!.viviendaId }}</p>
+          <p><strong>Barrio:</strong> {{ estadoCuenta()!.barrio }}</p>
+          <p><strong>Referencia:</strong> {{ estadoCuenta()!.referencia }}</p>
+          <p><strong>Usuario:</strong> {{ estadoCuenta()!.nombreUsuario }} {{ estadoCuenta()!.apellidoUsuario }}</p>
+          <p><strong>Total pagado:</strong> {{ estadoCuenta()!.totalPagado }}</p>
+          <p><strong>Total pendiente:</strong> {{ estadoCuenta()!.totalPendiente }}</p>
+        </section>
+
+        <section class="card">
+          <div class="section-header">
+            <h2>Detalle de cuotas</h2>
+            <span>Total cuotas: {{ estadoCuenta()!.cuotas.length }}</span>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Mes</th>
+                  <th>Año</th>
+                  <th>Monto</th>
+                  <th>Fecha vencimiento</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cuota of estadoCuenta()!.cuotas">
+                  <td>{{ cuota.id }}</td>
+                  <td>{{ cuota.mes }}</td>
+                  <td>{{ cuota.anio }}</td>
+                  <td>{{ cuota.monto }}</td>
+                  <td>{{ cuota.fechaVencimiento }}</td>
+                  <td>{{ cuota.estado }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+    }
+  </main>
+</div>

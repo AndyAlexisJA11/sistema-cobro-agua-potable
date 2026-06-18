@@ -1,0 +1,23 @@
+# Spring Boot
+Backend/aguacomunidad/target/
+Backend/aguacomunidad/*.log
+
+# Angular
+FrontEnd/frontend-agua/node_modules/
+FrontEnd/frontend-agua/dist/
+FrontEnd/frontend-agua/.angular/
+FrontEnd/frontend-agua/coverage/
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env / local secrets
+.env
+Backend/aguacomunidad/src/main/resources/application-local.properties
+Backend/aguacomunidad/src/main/resources/application-prod.properties
